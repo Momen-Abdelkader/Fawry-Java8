@@ -4,6 +4,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.ToDoubleFunction;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class StreamsExample {
 
     public static void main(final String[] args) {
@@ -22,35 +28,105 @@ public class StreamsExample {
             .stream()
             .forEach(authorPrintConsumer);
 
+        banner("Authors information - lambda");
         // SOLVED With functional interfaces used directly
         authors
             .stream()
             .forEach(System.out::println);
 
         banner("Active authors");
-        // TODO With functional interfaces declared
+        Predicate<Author> activeAuthorPredicate = new Predicate<Author>() {
+            @Override
+            public boolean test(Author author) {
+                return author.active;
+            }
+        };
+        authors
+                .stream()
+                .filter(activeAuthorPredicate)
+                .forEach(System.out::println);
 
         banner("Active authors - lambda");
-        // TODO With functional interfaces used directly
+        authors
+                .stream()
+                .filter(author -> author.active)
+                .forEach(System.out::println);
 
+        // I think it means published books not active books
         banner("Active books for all authors");
-        // TODO With functional interfaces declared
+        Function<Author, Stream<Book>> authorToBookStream = new Function<Author, Stream<Book>>() {
+            @Override
+            public Stream<Book> apply(Author author) {
+                return author.books.stream();
+            }
+        };
+
+        Predicate<Book> publishedBookPredicate = new Predicate<Book>() {
+            @Override
+            public boolean test(Book book) {
+                return book.published;
+            }
+        };
+
+        authors
+                .stream()
+                .flatMap(authorToBookStream)
+                .filter(publishedBookPredicate)
+                .forEach(System.out::println);
 
         banner("Active books for all authors - lambda");
-        // TODO With functional interfaces used directly
+        authors
+                .stream()
+                .flatMap(author -> author.books.stream())
+                .filter(book -> book.published)
+                .forEach(System.out::println);
 
         banner("Average price for all books in the library");
-        // TODO With functional interfaces declared
+        ToDoubleFunction<Book> bookToPriceFunction = new ToDoubleFunction<Book>() {
+            @Override
+            public double applyAsDouble(Book book) {
+                return book.price;
+            }
+        };
+
+        System.out.println(
+                authors
+                        .stream()
+                        .flatMap(authorToBookStream)
+                        .mapToDouble(bookToPriceFunction)
+                        .average()
+                        .orElse(0)
+        );
 
         banner("Average price for all books in the library - lambda");
-        // TODO With functional interfaces used directly
+        System.out.println(
+                authors
+                        .stream()
+                        .flatMap(author -> author.books.stream())
+                        .mapToDouble(book -> book.price)
+                        .average()
+                        .orElse(0)
+        );
 
         banner("Active authors that have at least one published book");
-        // TODO With functional interfaces declared
+
+        Predicate<Author> authorHasPublishedBookPredicate = new Predicate<Author>() {
+            @Override
+            public boolean test(Author author) {
+                return author.books.stream().anyMatch(publishedBookPredicate);
+            }
+        };
+
+        authors
+                .stream()
+                .filter(activeAuthorPredicate.and(authorHasPublishedBookPredicate))
+                .forEach(System.out::println);
 
         banner("Active authors that have at least one published book - lambda");
-        // TODO With functional interfaces used directly
-
+        authors
+                .stream()
+                .filter(author -> author.active && author.books.stream().anyMatch(book -> book.published))
+                .forEach(System.out::println);
     }
 
     private static void banner(final String m) {

@@ -81,10 +81,10 @@ public class LambdaExample {
                 return user.age > 8;
             }
         };
-        repository.select(ageGreaterThanEightPredicate, userComparatorByName);
+        repository.select(ageGreaterThanEightPredicate.and(activeUserPredicate), userComparatorByName);
 
         banner("Listing active users with age > 8 sorted by name - lambda");
-        repository.select(user -> user.age > 8, Comparator.comparing(user -> user.name));
+        repository.select(user -> user.age > 8 && user.active, Comparator.comparing(user -> user.name));
     }
 
     private static void banner(final String m) {
