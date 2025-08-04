@@ -52,8 +52,7 @@ public class StreamsExample {
                 .filter(author -> author.active)
                 .forEach(System.out::println);
 
-        // I think it means published books not active books
-        banner("Active books for all authors");
+        banner("Published books for all authors");
         Function<Author, Stream<Book>> authorToBookStream = new Function<Author, Stream<Book>>() {
             @Override
             public Stream<Book> apply(Author author) {
@@ -74,7 +73,7 @@ public class StreamsExample {
                 .filter(publishedBookPredicate)
                 .forEach(System.out::println);
 
-        banner("Active books for all authors - lambda");
+        banner("Published books for all authors - lambda");
         authors
                 .stream()
                 .flatMap(author -> author.books.stream())
